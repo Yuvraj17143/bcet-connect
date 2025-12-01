@@ -1,8 +1,6 @@
 // backend/src/config/env.js
 const dotenv = require("dotenv");
-
-dotenv.config(); // .env file load karega
-
+dotenv.config(); 
 module.exports = {
   PORT: process.env.PORT || 5000,
   MONGO_URI: process.env.MONGO_URI,

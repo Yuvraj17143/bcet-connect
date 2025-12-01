@@ -10,9 +10,14 @@ import {
   Moon,
   Sun,
   ChevronDown,
-  Sparkles
+  Sparkles,
+  MessageCircle,
+  Calendar,
+  Briefcase,
+  HeartHandshake,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -22,19 +27,42 @@ export default function TopNavbar({ onMenuToggle }) {
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [darkMode, setDarkMode] = useState(localStorage.getItem("theme") === "dark");
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("theme") === "dark"
+  );
   const [searchFocused, setSearchFocused] = useState(false);
 
-  // Mock notifications (replace with real API later)
+  // Example notifications (replace with API)
   const notifications = [
-    { id: 1, title: "New job posted", text: "Senior Developer Role at TCS", time: "2m ago", unread: true },
-    { id: 2, title: "New Comment", text: "Rahul commented on your post", time: "1h ago", unread: true },
-    { id: 3, title: "Upcoming Event", text: "Alumni Meet 2024 starts tomorrow", time: "3h ago", unread: false },
+    {
+      id: 1,
+      type: "job",
+      title: "New job posted",
+      text: "TCS – Senior Developer Role",
+      time: "2m ago",
+      unread: true,
+    },
+    {
+      id: 2,
+      type: "community",
+      title: "New Comment",
+      text: "Riya replied on your post",
+      time: "1h ago",
+      unread: true,
+    },
+    {
+      id: 3,
+      type: "event",
+      title: "Event Reminder",
+      text: "Alumni Meet 2024",
+      time: "3h ago",
+      unread: false,
+    },
   ];
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
-  // Dark Mode Handler
+  // Dark mode
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
@@ -45,24 +73,40 @@ export default function TopNavbar({ onMenuToggle }) {
     }
   }, [darkMode]);
 
+  // Notification Icon Mapping
+  const getIcon = (type) => {
+    switch (type) {
+      case "job":
+        return <Briefcase className="text-blue-600" size={18} />;
+      case "event":
+        return <Calendar className="text-purple-600" size={18} />;
+      case "community":
+        return <MessageCircle className="text-green-600" size={18} />;
+      case "mentorship":
+        return <HeartHandshake className="text-orange-600" size={18} />;
+      default:
+        return <Bell size={18} />;
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 shadow-lg">
+    <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl border-b border-gray-200 dark:border-gray-800 shadow-md">
       <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-4">
 
-        {/* ========== LEFT SECTION ========== */}
+        {/* ==== LEFT SECTION ==== */}
         <div className="flex items-center gap-4 flex-1 min-w-0">
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Side Menu */}
           <button
             onClick={onMenuToggle}
-            className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
+            className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
           >
             <Menu size={20} className="text-gray-700 dark:text-gray-300" />
           </button>
 
-          {/* Brand Name (Desktop) */}
+          {/* Brand */}
           <div className="hidden md:flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center shadow-md">
+            <div className="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center shadow-md animate-pulse-slow">
               <Sparkles className="text-white" size={16} />
             </div>
             <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
@@ -70,50 +114,50 @@ export default function TopNavbar({ onMenuToggle }) {
             </h1>
           </div>
 
-          {/* Search Bar (Desktop) */}
-          <div className="hidden md:flex items-center flex-1 max-w-md">
+          {/* Search */}
+          <div className="hidden md:flex w-full max-w-md">
             <div
-              className={`relative w-full transition-all duration-200 ${
+              className={`relative w-full transition-all ${
                 searchFocused ? "scale-[1.02]" : ""
               }`}
             >
               <Search
                 size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               />
+
               <input
                 type="text"
-                placeholder="Search jobs, events, alumni..."
+                placeholder="Search jobs, alumni, communities…"
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full 
-                focus:ring-2 focus:ring-primary/40 focus:border-primary/40 text-sm dark:text-white transition-all outline-none"
+                className="w-full pl-10 pr-4 py-2.5 rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                text-sm dark:text-white focus:ring-2 focus:ring-primary/40 outline-none transition-all"
               />
             </div>
           </div>
+
         </div>
 
-        {/* ========== RIGHT SECTION ========== */}
+        {/* ==== RIGHT SECTION ==== */}
         <div className="flex items-center gap-2 md:gap-3">
 
-          {/* AI Assistant Button */}
+          {/* AI Assistant */}
           <Button
-            className="hidden md:flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-full px-4 py-2 shadow-lg shadow-purple-500/30 transition-all duration-200 hover:scale-105"
+            onClick={() => navigate("/ai")}
+            className="hidden md:flex items-center gap-2 bg-gradient-to-br from-purple-600 to-indigo-600 
+            hover:scale-[1.05] active:scale-[0.97] transition-transform text-white rounded-full px-4 py-2 shadow-lg"
           >
             <Sparkles size={16} />
-            <span className="text-sm font-medium">Ask AI</span>
+            <span className="text-sm">Ask AI</span>
           </Button>
 
-          {/* Dark Mode Toggle */}
+          {/* Theme Toggle */}
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
+            className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition"
           >
-            {darkMode ? (
-              <Sun size={20} className="text-yellow-400" />
-            ) : (
-              <Moon size={20} className="text-gray-600" />
-            )}
+            {darkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-600" />}
           </button>
 
           {/* Notifications */}
@@ -123,70 +167,54 @@ export default function TopNavbar({ onMenuToggle }) {
                 setShowNotifications(!showNotifications);
                 setShowProfileMenu(false);
               }}
-              className="relative p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
+              className="relative p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition"
             >
-              <Bell size={20} className="text-gray-600 dark:text-gray-300" />
+              <Bell size={20} className="text-gray-700 dark:text-gray-300" />
+
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 text-[10px] bg-red-500 text-white flex items-center justify-center rounded-full font-bold shadow-md">
+                <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-semibold shadow-md animate-bounce">
                   {unreadCount}
                 </span>
               )}
             </button>
 
-            {/* Notifications Dropdown */}
+            {/* Dropdown */}
             {showNotifications && (
               <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowNotifications(false)}
-                />
+                <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
 
-                <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-fade-in">
-                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-primary/5 to-secondary/5">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
-                      Notifications
-                    </h3>
-                    <button
-                      onClick={() => setShowNotifications(false)}
-                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
-                    >
-                      <X size={16} className="text-gray-500 dark:text-gray-400" />
-                    </button>
+                <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden z-50 animate-slide-down">
+                  
+                  {/* Header */}
+                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-primary/10 to-secondary/10 flex items-center justify-between">
+                    <h3 className="font-semibold">Notifications</h3>
+                    <X size={16} className="cursor-pointer" onClick={() => setShowNotifications(false)} />
                   </div>
 
+                  {/* List */}
                   <div className="max-h-96 overflow-y-auto">
-                    {notifications.map((notif) => (
+                    {notifications.map((n) => (
                       <div
-                        key={notif.id}
-                        className={`px-4 py-3 cursor-pointer transition-colors border-b border-gray-100 dark:border-gray-800 ${
-                          notif.unread
-                            ? "bg-blue-50/50 dark:bg-blue-900/10"
-                            : "hover:bg-gray-50 dark:hover:bg-gray-800"
-                        }`}
+                        key={n.id}
+                        className={`flex gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-all
+                          ${n.unread ? "bg-blue-50/40 dark:bg-blue-900/20" : ""}
+                        `}
                       >
-                        <div className="flex items-start gap-3">
-                          <div className={`w-2 h-2 rounded-full mt-1.5 ${
-                            notif.unread ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
-                          }`} />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">
-                              {notif.title}
-                            </p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                              {notif.text}
-                            </p>
-                            <span className="text-[10px] text-gray-500 dark:text-gray-500 mt-1 inline-block">
-                              {notif.time}
-                            </span>
-                          </div>
+                        <div className="mt-1">{getIcon(n.type)}</div>
+
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold">{n.title}</p>
+                          <p className="text-xs text-gray-500">{n.text}</p>
+                          <span className="text-[10px] text-gray-400">{n.time}</span>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                    <button className="text-sm text-primary hover:text-primary/80 font-medium transition">
-                      View all notifications →
+                  {/* Footer */}
+                  <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40">
+                    <button className="text-sm text-primary hover:underline">
+                      View all →
                     </button>
                   </div>
                 </div>
@@ -201,84 +229,70 @@ export default function TopNavbar({ onMenuToggle }) {
                 setShowProfileMenu(!showProfileMenu);
                 setShowNotifications(false);
               }}
-              className="flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
+              className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition"
             >
-              <div className="w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-primary/20">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary text-white flex items-center justify-center font-bold shadow-md ring-2 ring-primary/20">
                 {user?.name?.charAt(0).toUpperCase() || "U"}
               </div>
+
               <div className="hidden lg:block text-left">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {user?.name}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                  {user?.role}
-                </p>
+                <p className="text-sm font-semibold">{user?.name}</p>
+                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
               </div>
+
               <ChevronDown
                 size={16}
-                className={`hidden lg:block text-gray-400 transition-transform duration-200 ${
-                  showProfileMenu ? "rotate-180" : ""
-                }`}
+                className={`hidden lg:block transition-transform ${showProfileMenu ? "rotate-180" : ""}`}
               />
             </button>
 
             {showProfileMenu && (
               <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowProfileMenu(false)}
-                />
+                <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)} />
 
-                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-fade-in">
+                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl overflow-hidden animate-slide-down z-50">
 
-                  {/* User Info Card */}
-                  <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-br from-primary/5 to-secondary/5">
+                  {/* User Info */}
+                  <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-br from-primary/10 to-secondary/10">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                        {user?.name?.charAt(0).toUpperCase() || "U"}
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary text-white flex items-center justify-center font-bold shadow-md">
+                        {user?.name?.charAt(0).toUpperCase()}
                       </div>
-                      <div className="flex-1 overflow-hidden">
-                        <p className="font-semibold text-gray-900 dark:text-white truncate">
-                          {user?.name}
-                        </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 capitalize">
-                          {user?.role}
-                        </p>
+
+                      <div className="flex-1">
+                        <p className="font-semibold">{user?.name}</p>
+                        <p className="text-xs text-gray-500">{user?.email}</p>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 truncate">
-                      {user?.email}
-                    </p>
                   </div>
 
-                  {/* Menu Options */}
+                  {/* Menu */}
                   <div className="py-2">
                     <button
                       onClick={() => {
                         navigate("/profile");
                         setShowProfileMenu(false);
                       }}
-                      className="w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-3 transition-colors"
+                      className="w-full text-left px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
                     >
                       <User size={16} />
-                      <span>My Profile</span>
+                      My Profile
                     </button>
-                    <button className="w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-3 transition-colors">
+
+                    <button className="w-full text-left px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                       <Settings size={16} />
-                      <span>Settings</span>
+                      Settings
                     </button>
                   </div>
 
                   {/* Logout */}
-                  <div className="border-t border-gray-200 dark:border-gray-800">
-                    <button
-                      onClick={logout}
-                      className="w-full px-4 py-3 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 font-medium transition-colors"
-                    >
-                      <LogOut size={16} />
-                      <span>Logout</span>
-                    </button>
-                  </div>
+                  <button
+                    onClick={logout}
+                    className="w-full text-left px-4 py-3 flex items-center gap-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition font-medium border-t border-gray-200 dark:border-gray-700"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
                 </div>
               </>
             )}
@@ -286,17 +300,13 @@ export default function TopNavbar({ onMenuToggle }) {
         </div>
       </div>
 
-      {/* Mobile Search Bar */}
+      {/* Mobile Search */}
       <div className="md:hidden px-4 pb-3">
         <div className="relative">
-          <Search
-            size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
-          />
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
-            type="text"
-            placeholder="Search..."
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full focus:ring-2 focus:ring-primary/40 text-sm dark:text-white outline-none transition-all"
+            placeholder="Search…"
+            className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full focus:ring-2 focus:ring-primary/40 outline-none"
           />
         </div>
       </div>

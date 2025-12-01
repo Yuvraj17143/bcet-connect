@@ -15,5 +15,6 @@ router.use("/learning", require("../modules/learning/learning.routes"));
 router.use("/admin", require("../modules/admin/admin.routes"));
 router.use("/analytics", require("../modules/analytics/analytics.routes"));
 router.use("/donations", require("../modules/donations/donation.routes"));
+router.use("/notifications", require("../modules/notifications/notification.routes"));
 
 module.exports = router;
