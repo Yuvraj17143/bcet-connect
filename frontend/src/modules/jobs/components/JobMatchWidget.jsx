@@ -1,157 +1,267 @@
 // src/modules/jobs/components/JobMatchWidget.jsx
-import { useMemo } from "react";
-import { Brain, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  Brain,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+  TrendingUp,
+} from "lucide-react";
 
-export default function JobMatchWidget({ jobSkills = [] }) {
-  // --- Fake AI match (stable per mount) ---
-  const match = useMemo(() => {
-    // 75–96% range
-    return Math.floor(Math.random() * 22) + 75;
-  }, []);
+export default function JobMatchWidget({ recommendation }) {
+  // 🔒 Defensive guard
+  if (!recommendation) {
+    return (
+      <section className="rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-6 text-center">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 mb-3">
+          <Brain size={20} className="text-gray-400" />
+        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
+          AI match score will be available once your profile skills are complete.
+        </p>
+      </section>
+    );
+  }
 
+  const {
+    matchScore = 0,
+    matchedSkills = [],
+    missingSkills = [],
+    optionalMatched = [],
+    explanation = "",
+  } = recommendation;
+
+  /* ──────────────────────────────────────────────
+     LABEL + COLOR - Professional Styling
+  ──────────────────────────────────────────────── */
   const matchLabel =
-    match >= 90 ? "Excellent Match" : match >= 85 ? "Good Match" : "Decent Match";
+    matchScore >= 80
+      ? "Strong Match"
+      : matchScore >= 50
+      ? "Good Match"
+      : "Needs Improvement";
 
-  // Colour based on score
-  const matchColorClass =
-    match >= 90
-      ? "text-emerald-600 bg-emerald-50 border-emerald-100 dark:text-emerald-300 dark:bg-emerald-900/30 dark:border-emerald-800"
-      : match >= 85
-      ? "text-blue-600 bg-blue-50 border-blue-100 dark:text-blue-300 dark:bg-blue-900/30 dark:border-blue-800"
-      : "text-amber-600 bg-amber-50 border-amber-100 dark:text-amber-300 dark:bg-amber-900/30 dark:border-amber-800";
+  const matchConfig =
+    matchScore >= 80
+      ? {
+          label: "Strong Match",
+          icon: CheckCircle2,
+          textColor: "text-emerald-700 dark:text-emerald-300",
+          bgColor: "bg-emerald-50 dark:bg-emerald-950",
+          borderColor: "border-emerald-200 dark:border-emerald-800",
+          gaugeColor: "#10b981",
+        }
+      : matchScore >= 50
+      ? {
+          label: "Good Match",
+          icon: TrendingUp,
+          textColor: "text-blue-700 dark:text-blue-300",
+          bgColor: "bg-blue-50 dark:bg-blue-950",
+          borderColor: "border-blue-200 dark:border-blue-800",
+          gaugeColor: "#3b82f6",
+        }
+      : {
+          label: "Needs Improvement",
+          icon: AlertCircle,
+          textColor: "text-amber-700 dark:text-amber-300",
+          bgColor: "bg-amber-50 dark:bg-amber-950",
+          borderColor: "border-amber-200 dark:border-amber-800",
+          gaugeColor: "#f59e0b",
+        };
 
-  // Circular gauge style
-  const gaugeStyle = {
-    backgroundImage: `conic-gradient(#2563eb ${match * 3.6}deg, #e5e7eb 0deg)`,
-  };
+  const StatusIcon = matchConfig.icon;
 
   return (
-    <section
-      className="
-        mt-4
-        rounded-2xl border border-gray-200 dark:border-gray-800
-        bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl
-        shadow-sm px-4 sm:px-5 py-4 sm:py-5
-      "
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-            <Brain size={18} />
+    <section className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+      {/* Header Bar */}
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-sm">
+              <Brain size={20} strokeWidth={2} />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                AI-Powered Match Analysis
+              </h3>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Based on your profile vs. job requirements
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">
-              AI Match Score
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Based on job requirements vs your profile
-            </p>
-          </div>
-        </div>
 
-        <div
-          className={`
-            hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5
-            rounded-full text-[11px] font-semibold border
-            ${matchColorClass}
-          `}
-        >
-          {match >= 85 ? (
-            <CheckCircle2 size={14} />
-          ) : (
-            <AlertCircle size={14} />
-          )}
-          <span>{matchLabel}</span>
+          {/* Match Badge - Desktop */}
+          <div
+            className={`hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold border ${matchConfig.bgColor} ${matchConfig.textColor} ${matchConfig.borderColor}`}
+          >
+            <StatusIcon size={14} strokeWidth={2.5} />
+            {matchConfig.label}
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-4 sm:gap-6">
-        {/* Gauge */}
-        <div className="flex items-center justify-center sm:justify-start">
-          <div
-            className="
-              relative w-24 h-24 sm:w-28 sm:h-28 rounded-full
-              flex items-center justify-center
-            "
-            style={gaugeStyle}
-          >
+      {/* Main Content */}
+      <div className="p-5">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Score Gauge Section */}
+          <div className="flex flex-col items-center lg:items-start gap-3">
+            {/* Circular Gauge */}
+            <div className="relative">
+              <svg className="w-32 h-32" viewBox="0 0 120 120">
+                {/* Background circle */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="50"
+                  fill="none"
+                  stroke="#e5e7eb"
+                  strokeWidth="10"
+                  className="dark:stroke-gray-800"
+                />
+                {/* Progress circle */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r="50"
+                  fill="none"
+                  stroke={matchConfig.gaugeColor}
+                  strokeWidth="10"
+                  strokeLinecap="round"
+                  strokeDasharray={`${(matchScore / 100) * 314} 314`}
+                  transform="rotate(-90 60 60)"
+                  className="transition-all duration-1000"
+                />
+                {/* Center content */}
+                <text
+                  x="60"
+                  y="55"
+                  textAnchor="middle"
+                  className="text-3xl font-bold fill-gray-900 dark:fill-white"
+                >
+                  {matchScore}%
+                </text>
+                <text
+                  x="60"
+                  y="70"
+                  textAnchor="middle"
+                  className="text-xs fill-gray-500 dark:fill-gray-400"
+                >
+                  match score
+                </text>
+              </svg>
+            </div>
+
+            {/* Match Badge - Mobile */}
             <div
-              className="
-                w-18 h-18 sm:w-20 sm:h-20 rounded-full
-                bg-white dark:bg-gray-900
-                flex flex-col items-center justify-center
-                shadow-inner
-              "
+              className={`sm:hidden inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold border ${matchConfig.bgColor} ${matchConfig.textColor} ${matchConfig.borderColor}`}
             >
-              <span className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-50">
-                {match}%
-              </span>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                match
-              </span>
+              <StatusIcon size={14} strokeWidth={2.5} />
+              {matchConfig.label}
             </div>
           </div>
-        </div>
 
-        {/* Text + skills */}
-        <div className="flex-1 min-w-0 space-y-2">
-          {/* Mobile label */}
-          <div
-            className={`
-              inline-flex sm:hidden items-center gap-1.5 px-2.5 py-1
-              rounded-full text-[11px] font-semibold border
-              ${matchColorClass}
-            `}
-          >
-            {match >= 85 ? (
-              <CheckCircle2 size={13} />
-            ) : (
-              <AlertCircle size={13} />
-            )}
-            <span>{matchLabel}</span>
-          </div>
-
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-            Higher score means your skills and experience are closer to what this
-            role is looking for. Improve your profile skills to boost this score.
-          </p>
-
-          {/* Required skills */}
-          {jobSkills?.length > 0 && (
-            <div className="mt-2 space-y-1.5">
-              <p className="text-[11px] sm:text-xs font-medium text-gray-500 dark:text-gray-400">
-                Required key skills
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {jobSkills.slice(0, 6).map((skill) => (
-                  <span
-                    key={skill}
-                    className="
-                      inline-flex items-center gap-1 px-3 py-1
-                      rounded-full text-[11px] sm:text-xs font-medium
-                      bg-primary/5 text-primary
-                      dark:bg-primary/15 dark:text-primary-foreground/90
-                    "
-                  >
-                    <Sparkles size={12} />
-                    {skill}
-                  </span>
-                ))}
-                {jobSkills.length > 6 && (
-                  <span className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">
-                    +{jobSkills.length - 6} more
-                  </span>
-                )}
+          {/* Details Section */}
+          <div className="flex-1 space-y-4">
+            {/* Explanation */}
+            {explanation && (
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {explanation}
+                </p>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Info line */}
-          <p className="mt-1 text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500">
-            *This is a demo AI score for UI. In the final version, it will use
-            your BCET Connect profile & real AI/ML to compute a precise match.
-          </p>
+            {/* Skills Breakdown */}
+            <div className="space-y-3">
+              {/* Matched Skills */}
+              {matchedSkills.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle2
+                      size={16}
+                      className="text-emerald-600 dark:text-emerald-400"
+                      strokeWidth={2}
+                    />
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                      Skills You Match ({matchedSkills.length})
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {matchedSkills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
+                      >
+                        <CheckCircle2 size={12} strokeWidth={2.5} />
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Missing Skills */}
+              {missingSkills.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <XCircle
+                      size={16}
+                      className="text-red-600 dark:text-red-400"
+                      strokeWidth={2}
+                    />
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                      Skills to Develop ({missingSkills.length})
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {missingSkills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800"
+                      >
+                        <XCircle size={12} strokeWidth={2.5} />
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Optional Matched */}
+              {optionalMatched.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles
+                      size={16}
+                      className="text-purple-600 dark:text-purple-400"
+                      strokeWidth={2}
+                    />
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                      Bonus Skills ({optionalMatched.length})
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {optionalMatched.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800"
+                      >
+                        <Sparkles size={12} strokeWidth={2.5} />
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Note */}
+            <div className="pt-3 border-t border-gray-200 dark:border-gray-800">
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                💡 This score is calculated by comparing your profile skills with job requirements. Keep your profile updated to improve accuracy.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
